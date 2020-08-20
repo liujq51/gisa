@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/backend/static/adminlte" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/backend/static/adminlte/plugins/bootstrap-iconpicker" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/backend/static/adminlte2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/static/adminlte/plugins/bootstrap-iconpicker" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/static/adminlte2" vcs="Git" />
+  </component>
+</project>

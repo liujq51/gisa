@@ -1,0 +1,134 @@
+version: '3.8'
+services:
+##构建nginx
+#nginx:
+#    build: ./docker/nginx
+#    ports:
+#      - "40080:80"
+#    #实例内部使用连接mysql实例，这里端口号要使用mysql实例的内部端口号
+#    links:
+#      - "mysql"
+#    #挂在两个目录，一个日志目录，一个web目录
+#    volumes:
+#      - ./master/main/webroot:/var/www/html
+
+##构建mysql
+  mysql:
+      build: ./docker/mysql
+      ports:
+        - "3306:3306"
+      # 将msyql的数据库文件存储在本地
+      volumes:
+        - ./docker/mysql/data:/var/lib/mysql
+      #此处是为了解决mysql的编码问题，防止中文乱码
+      command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci --init-connect='SET NAMES utf8;' --innodb-flush-log-at-trx-commit=0
+      environment:
+        #设置mysql root用户初始密码为123456
+        MYSQL_ROOT_PASSWORD: 123456
+      networks:
+        cron:
+          ipv4_address: 172.10.0.10
+
+  redis:
+     build: ./docker/redis
+     ports:
+       - 6379:6379
+
+  etcd:
+    hostname: etcd
+    image: bitnami/etcd:latest
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    #   - "4001:4001"
+    #   - "7001:7001"
+    user: root
+    volumes:
+      - "/Users/liujq/code/go/src/gisa/docker/etcd/data:/opt/bitnami/etcd/data"
+    environment:
+      - "ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379"
+      - "ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379"
+      - "ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380"
+      - "ETCD_INITIAL_ADVERTISE_PEER_URLS=http://0.0.0.0:2380"
+      - "ALLOW_NONE_AUTHENTICATION=yes"
+      - "ETCD_INITIAL_CLUSTER=node1=http://0.0.0.0:2380"
+      - "ETCD_NAME=node1"
+      - "ETCD_DATA_DIR=/opt/bitnami/etcd/data"
+    networks:
+      cron:
+        ipv4_address: 172.10.0.11
+
+
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - "/Users/liujq/code/go/src/gisa/docker/mongodb/db:/data/db"
+    ports:
+      - "27017:27017"
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: root
+#      MONGO_INITDB_ROOT_PASSWORD: 123456
+    networks:
+      cron:
+        ipv4_address: 172.10.0.12
+
+  mongo-express:
+    links:
+      - mongo
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+#    environment:
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: 123456
+    networks:
+      cron:
+        ipv4_address: 172.10.0.13
+
+#  crontab-master:
+#    build: ./master
+#    restart: always
+#    volumes:
+#      - "/Users/liujq/code/go/src/crontab/master:/go/src"
+#    ports:
+#      - 8090:8090
+#    links:
+#      - "etcd"
+#      - "mongo"
+#    networks:
+#      cron:
+#        ipv4_address: 172.10.0.14
+
+#  crontab-backend:
+#    build: ./backend
+#    restart: always
+#    volumes:
+#      - "/Users/liujq/code/go/src/crontab/backend:/go/src"
+#    ports:
+#      - 8080:8080
+#    links:
+#      - "etcd"
+#      - "mongo"
+#    networks:
+#      cron:
+#        ipv4_address: 172.10.0.15
+
+  crontab-worker:
+    build: ./worker
+    restart: always
+    volumes:
+      - "/Users/liujq/code/go/src/gisa/worker:/go/src"
+    links:
+      - "etcd"
+      - "mongo"
+    networks:
+      - cron
+
+networks:
+  cron:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.10.0.0/16

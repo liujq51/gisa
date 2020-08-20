@@ -1,0 +1,130 @@
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-success card-outline">
+                <div class="card-header with-border">
+                    <h3 class="card-title"></h3>
+                    <div class="card-tools">
+                        <div class="btn-group float-right" style="margin-right: 5px">
+                            <a href="/info/menu" class="btn btn-sm btn-default" title="列表"><i class="fa fa-list"></i>
+                                <span class="hidden-xs">&nbsp;列表</span></a>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form action="/info/menu/update/{{.menu_model.Id}}" method="post" accept-charset="UTF-8" class="form-horizontal" pjax-container>
+                    <input type="hidden" name="menu_id" value="{{.menu_model.Id}}">
+                    {{.xsrfdata}}
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">ID</label>
+                            <div class="col-sm-8">
+                                <div class="box card-solid card-default no-margin">
+                                    <!-- /.card-header -->
+                                    <div class="card-body" style="padding: 5px;">
+                                        {{.menu_model.Id}}&nbsp;
+                                    </div><!-- /.card-body -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row">
+                            <label for="parent_id" class="col-sm-2 col-form-label">父级菜单</label>
+                            <div class="col-sm-8">
+                                <select class="form-control parent_id" style="width: 100%;" name="parent_id" data-value="" >
+                                    <option value="0" >Root</option>
+                                    {{str2html .MenuSelectOption}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group  row">
+                            <label for="title" class="col-sm-2 col-form-label">标题</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    </div>
+                                    <input type="text" id="title" name="title" value="{{.menu_model.Title}}" class="form-control title" placeholder="输入 标题" required="1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row">
+                            <label for="icon" class="col-sm-2 col-form-label">图标</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    {{str2html .menu_model_icon}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row">
+                            <label for="uri" class="col-sm-2 col-form-label">路径</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    </div>
+                                    <input type="text" id="uri" name="uri" value="{{.menu_model.Uri}}" class="form-control uri" placeholder="输入 路径" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row">
+                            <label for="roles" class="col-sm-2 col-form-label">角色</label>
+                            <div class="col-sm-8">
+                                <select class="form-control roles" style="width: 100%;" name="roles[]" multiple="multiple" data-placeholder="输入 角色" data-value="" >
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">创建时间</label>
+                            <div class="col-sm-8">
+                                <div class="box card-solid card-default no-margin">
+                                    <!-- /.card-header -->
+                                    <div class="card-body" style="padding: 5px;">
+                                        {{.menu_model.CreatedAt}}
+                                    </div><!-- /.card-body -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">更新时间</label>
+                            <div class="col-sm-8">
+                                <div class="box card-solid card-default no-margin">
+                                    <!-- /.card-header -->
+                                    <div class="card-body" style="padding: 5px;">
+                                        {{.menu_model.UpdatedAt}}
+                                    </div><!-- /.card-body -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-8">
+                            <div class="btn-group float-right">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                            <div class="btn-group float-left">
+                                <button type="reset" class="btn btn-warning">重置</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="_method" value="PUT" class="_method"  />
+                    <!-- /.card-footer -->
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    $(function () {
+        var sdata = eval({{.role_select_list}})
+        var selected_roles = eval({{.role_selected_list}})
+        $(".parent_id").select2({"allowClear":true,"placeholder":{"id":"","text":"\u7236\u7ea7\u83dc\u5355"}});
+        $(".roles").select2({"allowClear":true,"placeholder":{"id":"","text":"\u89d2\u8272"},"data":sdata}).val(selected_roles).trigger('change');
+        //console.log($("#icon").data("icon"));
+        //$("#icon").attr("data-icon","fas fa-tachometer-alt").attr("role","iconpicker").trigger("submit");
+        //console.log($("#icon").data("icon"));
+    });
+</script>
