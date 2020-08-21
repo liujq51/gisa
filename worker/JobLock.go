@@ -2,7 +2,7 @@ package worker
 
 import (
 	"context"
-	"gisa/backend/common/crontab"
+	"gisa/common/crontab"
 
 	"github.com/coreos/etcd/clientv3"
 )

@@ -1,11 +1,10 @@
 package controllers
 
 import (
-	"gisa/backend/logic"
-	"gisa/backend/models"
+	"gisa/logic"
+	"gisa/models"
+	"gisa/utils"
 	"strings"
-
-	"github.com/lhtzbj12/sdrms/utils"
 )
 
 type HomeController struct {

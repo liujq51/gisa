@@ -1,7 +1,7 @@
 package worker
 
 import (
-	"gisa/backend/common/crontab"
+	"gisa/common/crontab"
 	"math/rand"
 	"os/exec"
 	"time"

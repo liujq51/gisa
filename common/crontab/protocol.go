@@ -114,12 +114,12 @@ func UnpackJob(value []byte) (ret *Job, err error) {
 // 从etcd的key中提取任务名
 // /cron/jobs/job10抹掉/cron/jobs/
 func ExtractJobName(jobKey string) string {
-	return strings.TrimPrefix(jobKey, constant.JOB_SAVE_DIR)
+	return strings.TrimPrefix(jobKey, JOB_SAVE_DIR)
 }
 
 // 从 /cron/killer/job10提取job10
 func ExtractKillerName(killerKey string) string {
-	return strings.TrimPrefix(killerKey, constant.JOB_KILLER_DIR)
+	return strings.TrimPrefix(killerKey, JOB_KILLER_DIR)
 }
 
 // 任务变化事件有2种：1）更新任务 2）删除任务
@@ -163,5 +163,5 @@ func BuildJobExecuteInfo(jobSchedulePlan *JobSchedulePlan) (jobExecuteInfo *JobE
 
 // 提取worker的IP
 func ExtractWorkerIP(regKey string) string {
-	return strings.TrimPrefix(regKey, constant.JOB_WORKER_DIR)
+	return strings.TrimPrefix(regKey, JOB_WORKER_DIR)
 }

@@ -3,13 +3,13 @@ package logic
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"gisa/common/crontab"
 	"time"
 
 	"github.com/astaxie/beego"
-
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
-	"github.com/owenliang/crontab/common"
 )
 
 // 任务管理器
@@ -34,18 +34,20 @@ func InitJobMgr() (err error) {
 	)
 
 	// 初始化配置
-	duration, _ := beego.AppConfig.Int64("etcdDialTimeout")
+	duration, _ := beego.AppConfig.Int64("crontab::etcdDialTimeout")
 	config = clientv3.Config{
-		Endpoints:   beego.AppConfig.Strings("etcdEndpoints"),   // 集群地址
-		DialTimeout: time.Duration(duration) * time.Millisecond, // 连接超时
+		Endpoints:   beego.AppConfig.Strings("crontab::etcdEndpoints"), // 集群地址
+		DialTimeout: time.Duration(duration) * time.Millisecond,        // 连接超时
 	}
-
-	// 建立连接jiaqiang
-
+	etcdEndpoints := beego.AppConfig.Strings("crontab::etcdEndpoints")
+	for k, v := range etcdEndpoints {
+		fmt.Println("kv:", k, v)
+	}
+	fmt.Println("config:", etcdEndpoints)
+	// 建立连接
 	if client, err = clientv3.New(config); err != nil {
 		return
 	}
-
 	// 得到KV和Lease的API子集
 	kv = clientv3.NewKV(client)
 	lease = clientv3.NewLease(client)
@@ -56,33 +58,37 @@ func InitJobMgr() (err error) {
 		kv:     kv,
 		lease:  lease,
 	}
+	fmt.Println("G_jobMgr:", G_jobMgr.client)
 	return
 }
 
 // 保存任务
-func (jobMgr *JobMgr) SaveJob(job *common.Job) (oldJob *common.Job, err error) {
+func (jobMgr *JobMgr) SaveJob(job *crontab.Job) (oldJob *crontab.Job, err error) {
 	// 把任务保存到/cron/jobs/任务名 -> json
 	var (
 		jobKey    string
 		jobValue  []byte
 		putResp   *clientv3.PutResponse
-		oldJobObj common.Job
+		oldJobObj crontab.Job
 	)
 
 	// etcd的保存key
-	jobKey = common.JOB_SAVE_DIR + job.Name
+	jobKey = crontab.JOB_SAVE_DIR + job.Name
 	// 任务信息json
 	if jobValue, err = json.Marshal(job); err != nil {
 		return
 	}
+	fmt.Println("etcd mgr:", jobMgr)
 	// 保存到etcd
 	if putResp, err = jobMgr.kv.Put(context.TODO(), jobKey, string(jobValue), clientv3.WithPrevKV()); err != nil {
-		return
+		fmt.Println(err.Error())
 	}
+	fmt.Println("put Resp:", putResp)
 	// 如果是更新, 那么返回旧值
 	if putResp.PrevKv != nil {
 		// 对旧值做一个反序列化
 		if err = json.Unmarshal(putResp.PrevKv.Value, &oldJobObj); err != nil {
+			fmt.Println(err.Error())
 			err = nil
 			return
 		}
@@ -92,15 +98,15 @@ func (jobMgr *JobMgr) SaveJob(job *common.Job) (oldJob *common.Job, err error) {
 }
 
 // 删除任务
-func (jobMgr *JobMgr) DeleteJob(name string) (oldJob *common.Job, err error) {
+func (jobMgr *JobMgr) DeleteJob(name string) (oldJob *crontab.Job, err error) {
 	var (
 		jobKey    string
 		delResp   *clientv3.DeleteResponse
-		oldJobObj common.Job
+		oldJobObj crontab.Job
 	)
 
 	// etcd中保存任务的key
-	jobKey = common.JOB_SAVE_DIR + name
+	jobKey = crontab.JOB_SAVE_DIR + name
 
 	// 从etcd中删除它
 	if delResp, err = jobMgr.kv.Delete(context.TODO(), jobKey, clientv3.WithPrevKV()); err != nil {
@@ -120,16 +126,16 @@ func (jobMgr *JobMgr) DeleteJob(name string) (oldJob *common.Job, err error) {
 }
 
 // 列举任务
-func (jobMgr *JobMgr) ListJobs() (jobList []*common.Job, err error) {
+func (jobMgr *JobMgr) ListJobs() (jobList []*crontab.Job, err error) {
 	var (
 		dirKey  string
 		getResp *clientv3.GetResponse
 		kvPair  *mvccpb.KeyValue
-		job     *common.Job
+		job     *crontab.Job
 	)
 
 	// 任务保存的目录
-	dirKey = common.JOB_SAVE_DIR
+	dirKey = crontab.JOB_SAVE_DIR
 
 	// 获取目录下所有任务信息
 	if getResp, err = jobMgr.kv.Get(context.TODO(), dirKey, clientv3.WithPrefix()); err != nil {
@@ -137,12 +143,12 @@ func (jobMgr *JobMgr) ListJobs() (jobList []*common.Job, err error) {
 	}
 
 	// 初始化数组空间
-	jobList = make([]*common.Job, 0)
+	jobList = make([]*crontab.Job, 0)
 	// len(jobList) == 0
 
 	// 遍历所有任务, 进行反序列化
 	for _, kvPair = range getResp.Kvs {
-		job = &common.Job{}
+		job = &crontab.Job{}
 		if err = json.Unmarshal(kvPair.Value, job); err != nil {
 			err = nil
 			continue
@@ -162,7 +168,7 @@ func (jobMgr *JobMgr) KillJob(name string) (err error) {
 	)
 
 	// 通知worker杀死对应任务
-	killerKey = common.JOB_KILLER_DIR + name
+	killerKey = crontab.JOB_KILLER_DIR + name
 
 	// 让worker监听到一次put操作, 创建一个租约让其稍后自动过期即可
 	if leaseGrantResp, err = jobMgr.lease.Grant(context.TODO(), 1); err != nil {

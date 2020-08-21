@@ -6,10 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"gisa/backend/common/config"
+	"gisa/common/config"
 
 	"github.com/astaxie/beego/orm"
-	"github.com/lhtzbj12/sdrms/models"
 )
 
 // TableName 设置User表名
@@ -190,7 +189,7 @@ func (u *User) WithRoles() *User {
 	//for _, role := range roleModel {
 	//	u.Roles = append(u.Roles, new(Role).MapToModel(role))
 	//}
-	var roles []*models.Role
+	var roles []*Role
 	qb, _ := orm.NewQueryBuilder("mysql")
 	// 构建查询对象
 	//qb.Select("r.id", "r.name", "r.slug", "r.creatd_at", "r.updated_at").

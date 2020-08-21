@@ -2,10 +2,10 @@ package info
 
 import (
 	"fmt"
-	"gisa/backend/common"
-	"gisa/backend/controllers"
+	"gisa/common"
+	"gisa/controllers"
 
-	"gisa/backend/models"
+	"gisa/models"
 )
 
 type PermissionController struct {

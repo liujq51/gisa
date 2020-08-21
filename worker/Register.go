@@ -2,7 +2,7 @@ package worker
 
 import (
 	"context"
-	"gisa/common"
+	"gisa/common/crontab"
 	"net"
 	"time"
 
@@ -46,7 +46,7 @@ func getLocalIP() (ipv4 string, err error) {
 		}
 	}
 
-	err = common.ERR_NO_LOCAL_IP_FOUND
+	err = crontab.ERR_NO_LOCAL_IP_FOUND
 	return
 }
 
@@ -64,7 +64,7 @@ func (register *Register) keepOnline() {
 
 	for {
 		// 注册路径
-		regKey = common.JOB_WORKER_DIR + register.localIP
+		regKey = crontab.JOB_WORKER_DIR + register.localIP
 
 		cancelFunc = nil
 

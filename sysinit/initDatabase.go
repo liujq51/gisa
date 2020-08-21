@@ -1,8 +1,7 @@
 package sysinit
 
 import (
-	"gisa/backend/models"
-	_ "gisa/backend/models"
+	"gisa/models"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"

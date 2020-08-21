@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"gisa/backend/common"
-	"gisa/backend/logic"
-	"gisa/backend/models"
+	"gisa/common"
+	"gisa/logic"
+	"gisa/models"
 	"html/template"
 	"strings"
 
@@ -26,7 +26,7 @@ type BaseController struct {
 type JsonData struct {
 	Code    int
 	Message string
-	Data    map[string]interface{}
+	Data    interface{}
 }
 
 func init() {
@@ -35,6 +35,7 @@ func init() {
 	beego.AddFuncMap("pagination", common.PaginationRender)
 }
 func (c *BaseController) Prepare() {
+	fmt.Println("prepare 2:")
 	//附值
 	c.controllerName, c.actionName = c.GetControllerAndAction()
 	c.controllerName = strings.ToLower(c.controllerName[0 : len(c.controllerName)-10])

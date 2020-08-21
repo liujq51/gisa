@@ -1,7 +1,8 @@
 package routers
 
 import (
-	"gisa/backend/controllers"
+	"gisa/controllers"
+	"gisa/controllers/info"
 
 	"github.com/astaxie/beego"
 )
@@ -9,13 +10,13 @@ import (
 func init() {
 	beego.Include(&controllers.HomeController{})
 
-	//beego.Include(&controllers.TestController{})
-	//beego.Include(&controllers.LogController{})
-	//beego.Include(&controllers.AuthController{})
-	//beego.Include(&controllers.UserController{})
-	//beego.Include(&info.MenuController{})
-	//beego.Include(&info.PermissionController{})
-	//beego.Include(&controllers.JobController{})
+	beego.Include(&controllers.TestController{})
+	beego.Include(&controllers.LogController{})
+	beego.Include(&controllers.AuthController{})
+	beego.Include(&controllers.UserController{})
+	beego.Include(&controllers.JobController{})
+	beego.Include(&info.MenuController{})
+	beego.Include(&info.PermissionController{})
 
 	//beego.ErrorController(&controllers.ErrorController{})
 

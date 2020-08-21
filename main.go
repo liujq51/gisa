@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "gisa/backend/routers"
-	_ "gisa/backend/sysinit"
+	_ "gisa/routers"
+	_ "gisa/sysinit"
 
 	"github.com/astaxie/beego"
 )

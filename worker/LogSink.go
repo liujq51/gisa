@@ -3,22 +3,19 @@ package worker
 import (
 	"context"
 	"fmt"
-
-	"go.mongodb.org/mongo-driver/mongo/options"
-
-	"gisa/common"
-
+	"gisa/common/crontab"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // mongodb存储日志
 type LogSink struct {
 	client         *mongo.Client
 	logCollection  *mongo.Collection
-	logChan        chan *common.JobLog
-	autoCommitChan chan *common.LogBatch
+	logChan        chan *crontab.JobLog
+	autoCommitChan chan *crontab.LogBatch
 }
 
 var (
@@ -27,7 +24,7 @@ var (
 )
 
 // 批量写入日志
-func (logSink *LogSink) saveLogs(batch *common.LogBatch) {
+func (logSink *LogSink) saveLogs(batch *crontab.LogBatch) {
 	if _, err := logSink.logCollection.InsertMany(context.TODO(), batch.Logs); err != nil {
 		fmt.Println("日志记录：", err.Error())
 	}
@@ -36,21 +33,21 @@ func (logSink *LogSink) saveLogs(batch *common.LogBatch) {
 // 日志存储协程
 func (logSink *LogSink) writeLoop() {
 	var (
-		log          *common.JobLog
-		logBatch     *common.LogBatch // 当前的批次
+		log          *crontab.JobLog
+		logBatch     *crontab.LogBatch // 当前的批次
 		commitTimer  *time.Timer
-		timeoutBatch *common.LogBatch // 超时批次
+		timeoutBatch *crontab.LogBatch // 超时批次
 	)
 
 	for {
 		select {
 		case log = <-logSink.logChan:
 			if logBatch == nil {
-				logBatch = &common.LogBatch{}
+				logBatch = &crontab.LogBatch{}
 				// 让这个批次超时自动提交(给1秒的时间）
 				commitTimer = time.AfterFunc(
 					time.Duration(G_config.JobLogCommitTimeout)*time.Millisecond,
-					func(batch *common.LogBatch) func() {
+					func(batch *crontab.LogBatch) func() {
 						return func() {
 							logSink.autoCommitChan <- batch
 						}
@@ -100,8 +97,8 @@ func InitLogSink() (err error) {
 	G_logSink = &LogSink{
 		client:         client,
 		logCollection:  client.Database("cron").Collection("log"),
-		logChan:        make(chan *common.JobLog, 1000),
-		autoCommitChan: make(chan *common.LogBatch, 1000),
+		logChan:        make(chan *crontab.JobLog, 1000),
+		autoCommitChan: make(chan *crontab.LogBatch, 1000),
 	}
 
 	// 启动一个mongodb处理协程
@@ -110,7 +107,7 @@ func InitLogSink() (err error) {
 }
 
 // 发送日志
-func (logSink *LogSink) Append(jobLog *common.JobLog) {
+func (logSink *LogSink) Append(jobLog *crontab.JobLog) {
 	select {
 	case logSink.logChan <- jobLog:
 	default:

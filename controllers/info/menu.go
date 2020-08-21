@@ -1,10 +1,10 @@
 package info
 
 import (
-	"backend/controllers"
-	"backend/models"
 	"encoding/json"
 	"fmt"
+	"gisa/controllers"
+	"gisa/models"
 	"strconv"
 
 	"github.com/astaxie/beego/orm"
@@ -33,11 +33,10 @@ func (c *MenuController) Index() {
 }
 
 type Menu struct {
-	Title    string        `form:"title"`
-	ParentId int           `form:"parent_id"`
-	Icon     string        `form:"icon"`
-	Uri      string        `form:"uri"`
-	Roles    []models.Role `form:"roles[]" orm:"rel(m2m);rel_through(gisa_role_menu)"`
+	Title    string `form:"title"`
+	ParentId int    `form:"parent_id"`
+	Icon     string `form:"icon"`
+	Uri      string `form:"uri"`
 }
 
 //@desc 菜单添加
@@ -45,13 +44,14 @@ type Menu struct {
 func (c *MenuController) Add() {
 	menu := models.Menu{}
 	if err := c.ParseForm(&menu); err == nil {
+		menu.Order = 999
 		if _, err := menu.Insert(); err != nil {
 			fmt.Println(err.Error())
 		}
 	} else {
 		fmt.Println(err.Error())
 	}
-	c.Redirect(c.URLFor("MenuController.Index"), 200)
+	c.Redirect(c.URLFor("MenuController.Index"), 302)
 }
 
 //@desc 菜单删除
