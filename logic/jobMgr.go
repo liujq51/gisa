@@ -39,11 +39,6 @@ func InitJobMgr() (err error) {
 		Endpoints:   beego.AppConfig.Strings("crontab::etcdEndpoints"), // 集群地址
 		DialTimeout: time.Duration(duration) * time.Millisecond,        // 连接超时
 	}
-	etcdEndpoints := beego.AppConfig.Strings("crontab::etcdEndpoints")
-	for k, v := range etcdEndpoints {
-		fmt.Println("kv:", k, v)
-	}
-	fmt.Println("config:", etcdEndpoints)
 	// 建立连接
 	if client, err = clientv3.New(config); err != nil {
 		return
@@ -58,7 +53,6 @@ func InitJobMgr() (err error) {
 		kv:     kv,
 		lease:  lease,
 	}
-	fmt.Println("G_jobMgr:", G_jobMgr.client)
 	return
 }
 
@@ -78,12 +72,10 @@ func (jobMgr *JobMgr) SaveJob(job *crontab.Job) (oldJob *crontab.Job, err error)
 	if jobValue, err = json.Marshal(job); err != nil {
 		return
 	}
-	fmt.Println("etcd mgr:", jobMgr)
 	// 保存到etcd
 	if putResp, err = jobMgr.kv.Put(context.TODO(), jobKey, string(jobValue), clientv3.WithPrevKV()); err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println("put Resp:", putResp)
 	// 如果是更新, 那么返回旧值
 	if putResp.PrevKv != nil {
 		// 对旧值做一个反序列化
@@ -133,19 +125,15 @@ func (jobMgr *JobMgr) ListJobs() (jobList []*crontab.Job, err error) {
 		kvPair  *mvccpb.KeyValue
 		job     *crontab.Job
 	)
-
 	// 任务保存的目录
 	dirKey = crontab.JOB_SAVE_DIR
-
 	// 获取目录下所有任务信息
 	if getResp, err = jobMgr.kv.Get(context.TODO(), dirKey, clientv3.WithPrefix()); err != nil {
-		return
+		fmt.Println(err.Error())
 	}
-
 	// 初始化数组空间
 	jobList = make([]*crontab.Job, 0)
 	// len(jobList) == 0
-
 	// 遍历所有任务, 进行反序列化
 	for _, kvPair = range getResp.Kvs {
 		job = &crontab.Job{}
@@ -155,6 +143,37 @@ func (jobMgr *JobMgr) ListJobs() (jobList []*crontab.Job, err error) {
 		}
 		jobList = append(jobList, job)
 	}
+	return
+}
+
+// 查看任务
+func (jobMgr *JobMgr) JobDetail(name string) (job *crontab.Job, err error) {
+	var (
+		getResp *clientv3.GetResponse
+		kvPair  *mvccpb.KeyValue
+		jobKey  string
+	)
+	// 任务保存的目录
+	jobKey = crontab.JOB_SAVE_DIR + name
+	// 获取任务信息
+	if getResp, err = jobMgr.kv.Get(context.TODO(), jobKey); err != nil {
+		fmt.Println(err.Error())
+	}
+	job = &crontab.Job{}
+	// len(jobList) == 0
+	// 遍历所有任务, 进行反序列化
+	for _, kvPair = range getResp.Kvs {
+		tempJob := &crontab.Job{}
+		if err = json.Unmarshal(kvPair.Value, tempJob); err != nil {
+			err = nil
+			continue
+		}
+		fmt.Println("job name:", tempJob, tempJob.Name, name)
+		if tempJob.Name == name {
+			job = tempJob
+		}
+	}
+	fmt.Println("job:", job)
 	return
 }
 

@@ -2,7 +2,7 @@ package worker
 
 import (
 	"context"
-	"gisa/common"
+	"gisa/common/crontab"
 	"time"
 
 	"github.com/coreos/etcd/clientv3"
@@ -27,25 +27,25 @@ func (jobMgr *JobMgr) watchJobs() (err error) {
 	var (
 		getResp            *clientv3.GetResponse
 		kvpair             *mvccpb.KeyValue
-		job                *common.Job
+		job                *crontab.Job
 		watchStartRevision int64
 		watchChan          clientv3.WatchChan
 		watchResp          clientv3.WatchResponse
 		watchEvent         *clientv3.Event
 		jobName            string
-		jobEvent           *common.JobEvent
+		jobEvent           *crontab.JobEvent
 	)
 
 	// 1, get一下/cron/jobs/目录下的所有任务，并且获知当前集群的revision
-	if getResp, err = jobMgr.kv.Get(context.TODO(), common.JOB_SAVE_DIR, clientv3.WithPrefix()); err != nil {
+	if getResp, err = jobMgr.kv.Get(context.TODO(), crontab.JOB_SAVE_DIR, clientv3.WithPrefix()); err != nil {
 		return
 	}
 
 	// 当前有哪些任务
 	for _, kvpair = range getResp.Kvs {
 		// 反序列化json得到Job
-		if job, err = common.UnpackJob(kvpair.Value); err == nil {
-			jobEvent = common.BuildJobEvent(common.JOB_EVENT_SAVE, job)
+		if job, err = crontab.UnpackJob(kvpair.Value); err == nil {
+			jobEvent = crontab.BuildJobEvent(crontab.JOB_EVENT_SAVE, job)
 			// 同步给scheduler(调度协程)
 			G_scheduler.PushJobEvent(jobEvent)
 		}
@@ -56,25 +56,25 @@ func (jobMgr *JobMgr) watchJobs() (err error) {
 		// 从GET时刻的后续版本开始监听变化
 		watchStartRevision = getResp.Header.Revision + 1
 		// 监听/cron/jobs/目录的后续变化
-		watchChan = jobMgr.watcher.Watch(context.TODO(), common.JOB_SAVE_DIR, clientv3.WithRev(watchStartRevision), clientv3.WithPrefix())
+		watchChan = jobMgr.watcher.Watch(context.TODO(), crontab.JOB_SAVE_DIR, clientv3.WithRev(watchStartRevision), clientv3.WithPrefix())
 		// 处理监听事件
 		for watchResp = range watchChan {
 			for _, watchEvent = range watchResp.Events {
 				switch watchEvent.Type {
 				case mvccpb.PUT: // 任务保存事件
-					if job, err = common.UnpackJob(watchEvent.Kv.Value); err != nil {
+					if job, err = crontab.UnpackJob(watchEvent.Kv.Value); err != nil {
 						continue
 					}
 					// 构建一个更新Event
-					jobEvent = common.BuildJobEvent(common.JOB_EVENT_SAVE, job)
+					jobEvent = crontab.BuildJobEvent(crontab.JOB_EVENT_SAVE, job)
 				case mvccpb.DELETE: // 任务被删除了
 					// Delete /cron/jobs/job10
-					jobName = common.ExtractJobName(string(watchEvent.Kv.Key))
+					jobName = crontab.ExtractJobName(string(watchEvent.Kv.Key))
 
-					job = &common.Job{Name: jobName}
+					job = &crontab.Job{Name: jobName}
 
 					// 构建一个删除Event
-					jobEvent = common.BuildJobEvent(common.JOB_EVENT_DELETE, job)
+					jobEvent = crontab.BuildJobEvent(crontab.JOB_EVENT_DELETE, job)
 				}
 				// 变化推给scheduler
 				G_scheduler.PushJobEvent(jobEvent)
@@ -90,22 +90,22 @@ func (jobMgr *JobMgr) watchKiller() {
 		watchChan  clientv3.WatchChan
 		watchResp  clientv3.WatchResponse
 		watchEvent *clientv3.Event
-		jobEvent   *common.JobEvent
+		jobEvent   *crontab.JobEvent
 		jobName    string
-		job        *common.Job
+		job        *crontab.Job
 	)
 	// 监听/cron/killer目录
 	go func() { // 监听协程
 		// 监听/cron/killer/目录的变化
-		watchChan = jobMgr.watcher.Watch(context.TODO(), common.JOB_KILLER_DIR, clientv3.WithPrefix())
+		watchChan = jobMgr.watcher.Watch(context.TODO(), crontab.JOB_KILLER_DIR, clientv3.WithPrefix())
 		// 处理监听事件
 		for watchResp = range watchChan {
 			for _, watchEvent = range watchResp.Events {
 				switch watchEvent.Type {
 				case mvccpb.PUT: // 杀死任务事件
-					jobName = common.ExtractKillerName(string(watchEvent.Kv.Key))
-					job = &common.Job{Name: jobName}
-					jobEvent = common.BuildJobEvent(common.JOB_EVENT_KILL, job)
+					jobName = crontab.ExtractKillerName(string(watchEvent.Kv.Key))
+					job = &crontab.Job{Name: jobName}
+					jobEvent = crontab.BuildJobEvent(crontab.JOB_EVENT_KILL, job)
 					// 事件推给scheduler
 					G_scheduler.PushJobEvent(jobEvent)
 				case mvccpb.DELETE: // killer标记过期, 被自动删除

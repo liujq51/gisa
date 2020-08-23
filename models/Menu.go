@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gisa/common"
 	"strconv"
 	"time"
 
@@ -129,7 +130,7 @@ func constructMenuTree(menus []Menu, parentID int) []MenuItem {
 	return branch
 }
 
-func GetMenuTreeHtml(items interface{}, httpPath string) string {
+func GetMenuTreeHtml(items interface{}, httpPath string, lang string) string {
 	var (
 		menuItems   []MenuItem
 		menuTreeStr string
@@ -169,7 +170,7 @@ func GetMenuTreeHtml(items interface{}, httpPath string) string {
 			tempStr += `<li class="nav-item has-treeview ` + liClass + ` ">`
 			tempStr += `<a href="` + item.Url + `" class="nav-link ` + aClass + `">
                         <i class="nav-icon ` + item.Icon + `"></i>
-                        <p>` + item.Title + piClass + `</p>
+                        <p>` + common.T(lang, "menu."+item.Title) + piClass + `</p>
                     </a>`
 			if subStr != "" {
 				tempStr += `<ul class="nav nav-treeview ">`

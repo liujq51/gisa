@@ -8,8 +8,8 @@ import (
 )
 
 func init() {
-	beego.Include(&controllers.HomeController{})
 
+	beego.Include(&controllers.HomeController{})
 	beego.Include(&controllers.TestController{})
 	beego.Include(&controllers.LogController{})
 	beego.Include(&controllers.AuthController{})
@@ -17,6 +17,7 @@ func init() {
 	beego.Include(&controllers.JobController{})
 	beego.Include(&info.MenuController{})
 	beego.Include(&info.PermissionController{})
+	beego.Include(&controllers.BotController{})
 
 	//beego.ErrorController(&controllers.ErrorController{})
 

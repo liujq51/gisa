@@ -44,3 +44,10 @@ func MenuTBName() string {
 func RoleMenuTBName() string {
 	return TableName("role_menu")
 }
+
+func BotTBName() string {
+	return TableName("bot")
+}
+func JobTBName() string {
+	return TableName("job")
+}

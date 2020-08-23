@@ -132,7 +132,6 @@ func (c *MenuController) Update(menu_id int) {
 	}
 	c.Data["menu_model"] = menuModel
 	c.Data["menu_model_icon"] = `<button class="btn btn-default" id="icon" data-icon="` + menuModel.Icon + `" name="icon" role="iconpicker"></button>`
-	fmt.Println(c.Data["menu_model_icon"])
 	c.Data["MenuSelectOption"] = models.GetMenuSelectOption(menuModel.ParentId)
 	c.Data["role_select_list"] = models.AllRoleSelectList()
 	c.Data["role_selected_list"] = models.AllRoleSelectedList(menuModel.Id)

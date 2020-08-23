@@ -1,0 +1,174 @@
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-success card-outline">
+                <div class="card-header with-border">
+                    <h3 class="card-title"></h3>
+                    <div class="card-tools">
+                        <div class="btn-group float-right" style="margin-right: 5px">
+                            <a href="/job" class="btn btn-sm btn-default" title="列表"><i class="fa fa-list"></i>
+                                <span class="hidden-xs">&nbsp;列表</span></a>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form action="/job/edit/{{.model.Id}}" method="POST" accept-charset="UTF-8" class="form-horizontal" >
+                    {{.xsrfdata}}
+                    <input type="hidden" name="job_id" value="{{.model.Id}}">
+                    <div class="card-body">
+                        <div class="form-group  row">
+                            <label for="title" class="col-sm-2 col-form-label">任务名</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
+                                    </div>
+                                    <input type="text" id="title" name="title" value="{{.model.Title}}" class="form-control title" placeholder="输入 任务名称" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row">
+                            <label for="parent_id" class="col-sm-2 col-form-label">Webhook</label>
+                            <div class="col-sm-8">
+                                <select class="form-control webhook" style="width: 100%;" name="webhook">
+                                    {{str2html .webhook_select_option}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group  row">
+                            <label for="parent_id" class="col-sm-2 col-form-label">消息类型</label>
+                            <div class="col-sm-8">
+                                <select class="form-control msg_type" style="width: 100%;" name="msg_type" data-value="{{.model.MsgType}}" >
+                                    {{str2html .msg_type_select_option}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group  row type_text">
+                            <label for="title" class="col-sm-2 col-form-label">消息内容</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
+                                    </div>
+                                    <textarea type="text" id="msg_content" name="msg_content" class="form-control title" placeholder="输入 消息内容"  >{{.model.MsgContent}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row type_news">
+                            <label for="title" class="col-sm-2 col-form-label">消息标题</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
+                                    </div>
+                                    <input type="text" name="msg_title" value="{{.model.MsgTitle}}" class="form-control title" placeholder="输入 消息标题"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row type_news">
+                            <label for="title" class="col-sm-2 col-form-label">消息描述</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
+                                    </div>
+                                    <textarea type="text" name="msg_desc" value="{{.model.MsgDesc}}" class="form-control title" placeholder="输入 消息描述"  ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row type_text">
+                            <label for="title" class="col-sm-2 col-form-label">提醒群成员列表</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
+                                    </div>
+                                    <input type="text"  name="mentioned_list" value="{{.model.MentionedList}}" class="form-control title" placeholder="输入 消息标题" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row type_news">
+                            <label for="title" class="col-sm-2 col-form-label">跳转链接</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
+                                    </div>
+                                    <input type="text" name="msg_url" value="{{.model.MsgUrl}}" class="form-control title" placeholder="输入 跳转链接"  />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row type_news">
+                            <label for="title" class="col-sm-2 col-form-label">图文消息的图片链接</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
+                                    </div>
+                                    <input type="text" id="msg_picurl" name="msg_picurl" value="{{.model.MsgPicurl}}" class="form-control title" placeholder="输入 图片链接" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group  row">
+                            <label for="title" class="col-sm-2 col-form-label">cron表达式</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
+                                    </div>
+                                    <input type="text" id="cronExpr" name="cron_expr" value="{{.model.CronExpr}}" class="form-control title" placeholder="输入 cron表达式" required="1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2  control-label"></label>
+                            <div class="col-sm-8">
+        <pre><code>*    *    *    *    *
+-    -    -    -    -
+|    |    |    |    +--- day of week (0 - 7) (Sunday=0 or 7)
+|    |    |    +-------- month (1 - 12)
+|    |    +------------- day of month (1 - 31)
+|    +------------------ hour (0 - 23)
++----------------------- min (0 - 59)</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-8">
+                            <div class="btn-group float-right">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                            <div class="btn-group float-left">
+                                <button type="reset" class="btn btn-warning">重置</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card-footer -->
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    function changeType(type_value){
+        if('text' == type_value || 'markdown' == type_value){
+            $(".type_text").show();
+            $(".type_news").hide();
+        }else if('news' == type_value){
+            $(".type_text").hide();
+            $(".type_news").show();
+        }
+    }
+    $(function () {
+        $(".webhook").select2({"allowClear":true,"placeholder":{"id":"","text":"\u7236\u7ea7\u83dc\u5355"}});
+        $(".msg_type").select2({"allowClear":true,"placeholder":{"id":"","text":"\u7236\u7ea7\u83dc\u5355"}});
+        changeType({{.model.MsgType}});
+        $(document).on('change', ".msg_type", function () {
+            var type_value = $(this).find("option:selected").val();
+            changeType(type_value);
+        });
+    });
+</script>

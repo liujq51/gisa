@@ -35,7 +35,7 @@ func InitDatabase() {
 		orm.RegisterDataBase(dbAlias, dbType, dbUser+":"+dbPwd+"@tcp("+dbHost+":"+
 			dbPort+")/"+dbName+"?charset="+dbCharset, 30)
 	}
-	orm.RegisterModel(new(models.User), new(models.Role), new(models.Menu), new(models.MenuRoleRel), new(models.Permission))
+	orm.RegisterModel(new(models.User), new(models.Role), new(models.Menu), new(models.MenuRoleRel), new(models.Permission), new(models.Bot), new(models.Job))
 	//如果是开发模式，则显示命令信息
 	isDev := (beego.AppConfig.String("runmode") == "dev")
 	//自动建表

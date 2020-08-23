@@ -118,7 +118,7 @@
                                 data: {
                                     menu_id:id,
                                     _method:'post',
-                                    _xsrf:LA.token,
+                                    _xsrf:csrf_token,
                                 },
                                 success: function (data) {
                                     if (data.Code == 200) {
@@ -179,8 +179,5 @@
             $(".parent_id").select2({"allowClear":true,"placeholder":{"id":"","text":"\u7236\u7ea7\u83dc\u5355"}});
             $(".roles").select2({"allowClear":true,"placeholder":{"id":"","text":"\u89d2\u8272"}});
         });
-        function LA() {
-        }
-        LA.token = "{{.xsrf_token}}";
 
     </script>
