@@ -79,7 +79,6 @@ func (this *JobController) Add() {
 func (this *JobController) Save() {
 	var (
 		job models.Job
-		bot models.Bot
 		err error
 	)
 
@@ -87,12 +86,7 @@ func (this *JobController) Save() {
 	if err := this.ParseForm(&job); err != nil {
 		fmt.Println(err.Error())
 	}
-	botId, _ := this.GetInt("webhook")
-	bot = models.Bot{
-		Id: botId,
-	}
-	job.Webhook = &bot
-	fmt.Printf("%+v", job)
+	//fmt.Printf("%+v", job)
 	//if _, err = logic.G_jobMgr.SaveJob(&job); err != nil {
 	//	fmt.Println(err.Error())
 	//}
@@ -151,8 +145,6 @@ func (this *JobController) Edit(jobId int) {
 		fmt.Println(err.Error())
 	}
 	this.Data["model"] = job
-	this.Data["webhook_select_option"] = models.Bot{}.GetBotSelectOption(job.Webhook.Id)
-	this.Data["msg_type_select_option"] = models.Bot{}.GetBotMsgTypeList(job.MsgType)
 	this.AddBreadcrumbs("任务管理", this.URLFor("JobController.Index"))
 	this.AddBreadcrumbs("修改", "")
 	this.ShowHtml("job/edit.html")
@@ -162,17 +154,11 @@ func (this *JobController) DoUpdate() {
 	var (
 		job models.Job
 		//err error
-		bot models.Bot
 	)
 	job = models.Job{}
 	if err := this.ParseForm(&job); err != nil {
 		fmt.Println(err.Error())
 	}
-	botId, _ := this.GetInt("webhook")
-	bot = models.Bot{
-		Id: botId,
-	}
-	job.Webhook = &bot
 	if _, err := job.Update(); err != nil {
 		fmt.Println(err.Error())
 	}

@@ -6,6 +6,7 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
 require (
 	github.com/GoAdminGroup/go-admin v1.2.16
+	github.com/Unknwon/goconfig v0.0.0-20200817131228-2444c9802e76 // indirect
 	github.com/astaxie/beego v1.12.2
 	github.com/beego/i18n v0.0.0-20161101132742-e9308947f407
 	github.com/coreos/etcd v3.3.24+incompatible

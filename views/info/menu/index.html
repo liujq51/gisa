@@ -151,7 +151,7 @@
                 var serialize = $('#tree-{{.treeId}}').nestable('serialize');
 
                 $.post("{{urlfor "MenuController.SaveMenuOrder"}}", {
-                        _xsrf: LA.token,
+                        _xsrf: csrf_token,
                         _order: JSON.stringify(serialize)
                     },
                     function(data){
@@ -162,7 +162,6 @@
 
             $('.tree-{{.treeId}}-refresh').click(function () {
                 $.pjax.reload('#pjax-container');
-                //console.log("world.")
                 toastr.success('刷新成功 !');
             });
 

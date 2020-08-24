@@ -51,3 +51,7 @@ func BotTBName() string {
 func JobTBName() string {
 	return TableName("job")
 }
+
+func MsgJobTBName() string {
+	return TableName("msg_job")
+}

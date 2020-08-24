@@ -74,8 +74,6 @@ func (this *BaseController) Prepare() {
 	this.actionName = strings.ToLower(this.actionName)
 	//从Session里获取数据 设置用户信息
 	this.adapterUserInfo()
-	//this.Layout = "layouts/common/layout.html"
-	//this.LayoutSections = make(map[string]string)
 	this.globalUrlWriteList = map[string]bool{
 		"home.login":   true,
 		"home.dologin": true,
@@ -85,7 +83,6 @@ func (this *BaseController) Prepare() {
 	}
 	//如果一个Controller的多数Action都需要权限控制，则将验证放到Prepare
 	conAct := this.controllerName + "." + this.actionName
-	//fmt.Println("router:", this.Ctx.Request.Method, this.Ctx.Request.URL.Path, this.Ctx.Input.URL(), conAct)
 	if !this.globalUrlWriteList[conAct] {
 		this.checkAuthor()
 	}

@@ -70,11 +70,11 @@ func (c *HomeController) DoLogin() {
 
 //@desc logout
 //@router /logout [*]
-func (c *HomeController) Logout() {
-	user := models.User{}
-	c.SetSession("user", user)
-	url := c.URLFor("HomeController.Login")
-	c.Redirect(url, 302)
+func (this *HomeController) Logout() {
+	//user := models.User{}
+	this.DelSession("user")
+	this.DelSession("menuTree")
+	this.Redirect(this.URLFor("HomeController.Login"), 302)
 }
 
 func (c *HomeController) error() {

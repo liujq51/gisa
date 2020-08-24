@@ -175,6 +175,44 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["gisa/controllers:MsgJobController"] = append(beego.GlobalControllerRouter["gisa/controllers:MsgJobController"],
+        beego.ControllerComments{
+            Method: "Index",
+            Router: "/msg_job",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["gisa/controllers:MsgJobController"] = append(beego.GlobalControllerRouter["gisa/controllers:MsgJobController"],
+        beego.ControllerComments{
+            Method: "Add",
+            Router: "/msg_job/add",
+            AllowHTTPMethods: []string{"get","post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["gisa/controllers:MsgJobController"] = append(beego.GlobalControllerRouter["gisa/controllers:MsgJobController"],
+        beego.ControllerComments{
+            Method: "Delete",
+            Router: "/msg_job/delete",
+            AllowHTTPMethods: []string{"post","delete"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["gisa/controllers:MsgJobController"] = append(beego.GlobalControllerRouter["gisa/controllers:MsgJobController"],
+        beego.ControllerComments{
+            Method: "Edit",
+            Router: "/msg_job/edit/:jobId",
+            AllowHTTPMethods: []string{"get","post","put"},
+            MethodParams: param.Make(
+				param.New("jobId", param.InPath),
+			),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["gisa/controllers:TestController"] = append(beego.GlobalControllerRouter["gisa/controllers:TestController"],
         beego.ControllerComments{
             Method: "Get",
