@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"fmt"
-	"gisa/common"
 	"gisa/logic"
 	"gisa/models"
+	"strconv"
+	"strings"
 )
 
 type JobController struct {
@@ -22,38 +23,20 @@ func (this *JobController) Prepare() {
 //@desc 菜单首页
 //@router /job [get]
 func (this *JobController) Index() {
-	//var (
-	//	jobList []*crontab.Job
-	//	err     error
-	//)
-	////  任务管理器
-	//if err = logic.InitJobMgr(); err != nil {
-	//	fmt.Println(err.Error())
-	//}
-	//// 获取任务列表
-	//if jobList, err = logic.G_jobMgr.ListJobs(); err != nil {
-	//	fmt.Println(jobList)
-	//}
-	//this.Data["job_list"] = jobList
+	var (
+		err error
+	)
 
-	page_index, err := this.GetInt("page_index")
-	pagination := common.Pagination{}
-	pagination.PageCount = 20
-	pagination.Url = this.URLFor("JobController.Index")
-
-	if err == nil {
-		pagination.PageIndex = page_index
-	} else {
-		pagination.PageIndex = 1
+	IndexParams := models.JobListParams{}
+	if err := this.ParseForm(&IndexParams); err != nil {
+		//handle error
 	}
-
-	jobs, pageTotal, err := models.ListJobs(pagination.PageIndex, pagination.PageCount)
+	jobs, pagination, err := models.ListJobs(IndexParams)
 	if err != nil {
 		//this.AddErrorMessage(err.Error())
 		fmt.Println(err.Error())
 	}
 
-	pagination.PageTotal = pageTotal
 	this.Data["modles"] = jobs
 	this.Data["pages"] = pagination
 	this.AddBreadcrumbs("Job 管理", this.URLFor("BotController.Index"))
@@ -100,25 +83,31 @@ func (this *JobController) Save() {
 //@router /job/delete   [post,delete]
 func (this *JobController) Delete() {
 	var (
-		err   error // interface{}
-		data  JsonData
-		jobId int
-		job   models.Job
+		err    error // interface{}
+		data   JsonData
+		jobId  int
+		jobStr string
+		job    models.Job
+		item   string
 	)
 	data = JsonData{}
 	// 删除的任务名
-	jobId, _ = this.GetInt("job_id")
+	//jobId, _ = this.GetInt("job_id")
+	jobStr = this.GetString("job_id")
 	if err != nil {
 		data.Code = 400
 		data.Message = "数据获取失败"
 		this.ShowJSON(&data)
 	}
-	job = models.Job{
-		Id: jobId,
-	}
-	// 删除任务处理
-	if _, err := job.Delete(); err != nil {
-		fmt.Println(err.Error())
+	for _, item = range strings.Split(jobStr, ",") {
+		jobId, _ = strconv.Atoi(item)
+		job = models.Job{
+			Id: jobId,
+		}
+		// 删除任务处理
+		if _, err := job.Delete(); err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 
 	data.Code = 200

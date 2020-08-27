@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"gisa/common"
 	"gisa/common/crontab"
 	"gisa/logic"
 	"strconv"
@@ -22,24 +23,60 @@ type Job struct {
 	UpdatedAt string `form:"-"`
 }
 
+type JobListParams struct {
+	Id        int    `form:"id"`
+	Title     string `form:"title"`
+	PageIndex int    `form:"page_index"`
+	PageCount int    `form:"page_count"`
+}
+
 // TableName 设置表名
 func (this *Job) TableName() string {
 	return JobTBName()
 }
 
 //list permissions
-func ListJobs(pageIndex, pageCount int) ([]*Job, int, error) {
-	var Jobs []*Job
-	var total int64
-	o := orm.NewOrm()
-	_, err := o.QueryTable("gisa_job").Limit(pageCount).Offset(pageCount * (pageIndex - 1)).RelatedSel().All(&Jobs)
-
-	if err != nil {
-		return Jobs, int(total), err
+func ListJobs(listParams JobListParams) ([]*Job, common.Pagination, error) {
+	var (
+		Jobs  []*Job
+		count int64
+	)
+	pagination := common.Pagination{}
+	if listParams.PageIndex == 0 {
+		pagination.PageIndex = 1
+	} else {
+		pagination.PageIndex = listParams.PageIndex
+	}
+	if listParams.PageCount == 0 {
+		pagination.PageCount = 10
+	} else {
+		pagination.PageCount = listParams.PageCount
 	}
 
-	total, err = o.QueryTable(JobTBName()).Count()
-	return Jobs, int(total), err
+	pagination.Url = "/job"
+	fmt.Println("list params:", listParams, listParams.Id, listParams.Id > 0, listParams.Title, listParams.Title != "")
+	o := orm.NewOrm()
+	qs := o.QueryTable(JobTBName())
+	if listParams.Id > 0 {
+		qs = qs.Filter("id", listParams.Id)
+	}
+	if listParams.Title != "" {
+		qs = qs.Filter("title__icontains", listParams.Title)
+	}
+	_, err := qs.Limit(pagination.PageCount).
+		Offset(pagination.PageCount * (pagination.PageIndex - 1)).
+		RelatedSel().
+		All(&Jobs)
+
+	if err != nil {
+		return Jobs, pagination, err
+	}
+
+	count, err = o.QueryTable(JobTBName()).Count()
+	pagination.PageTotal = int(count)
+	fmt.Printf("%+v", listParams)
+	fmt.Printf("%+v", pagination)
+	return Jobs, pagination, err
 }
 
 func (this *Job) Insert() (isInsert bool, err error) {
@@ -101,7 +138,6 @@ func (this *Job) Delete() (isDelete bool, err error) {
 	jobName := "job_" + strconv.Itoa(this.Id)
 	o := orm.NewOrm()
 	num, err := o.Delete(this)
-	fmt.Println("del job num:", num, "job_"+strconv.Itoa(this.Id), this.Id, jobName)
 	if num > 0 {
 		if _, err = logic.G_jobMgr.DeleteJob(jobName); err != nil {
 			fmt.Println(err.Error())

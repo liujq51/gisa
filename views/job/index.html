@@ -13,13 +13,13 @@
                     <span>
                         <input type="checkbox" class="grid-select-all" />&nbsp;
                         <div class="btn-group">
-                            <a class="btn btn-sm btn-primary">&nbsp;<span class="hidden-xs">操作</span></a>
-                            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
+                            <a class="btn btn-sm btn-secondary">&nbsp;<span class="hidden-xs">操作</span></a>
+                            <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown">
                                 <span class="caret"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
+                                <span class="sr-only"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="#" class="dropdown-item">批量删除</a></li>
+                                <li><a href="#" class="dropdown-item grid-batch-0">批量删除</a></li>
                             </ul>
                         </div>
                         <a class="btn btn-sm btn-primary grid-refresh" title="刷新">
@@ -31,7 +31,7 @@
                     </span>
                 </div>
                 <div class="card-header with-border hide" id="filter-box">
-                    <form action="/info/permission" class="form-horizontal" pjax-container method="get">
+                    <form action="/job" class="form-horizontal" pjax-container method="get">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="card-body">
@@ -43,6 +43,17 @@
                                                     <span class="input-group-text"><i class="fas fa-pen"></i></span>
                                                 </div>
                                                 <input type="text" class="form-control id" placeholder="ID" name="id" value="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label"> Title</label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group input-group-sm">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-pen"></i></span>
+                                                </div>
+                                                <input type="text" class="form-control title" placeholder="Title" name="title" value="">
                                             </div>
                                         </div>
                                     </div>
@@ -74,6 +85,7 @@
                         <thead>
                         <tr>
                             <th> </th>
+                            <th>任务ID</th>
                             <th>任务名</th>
                             <th>Command</th>
                             <th>cron表达式</th>
@@ -85,7 +97,8 @@
                         <tbody>
                         {{range $index,$item:=.modles}}
                             <tr>
-                                <td ></td>
+                                <td ><input type="checkbox" class="grid-row-checkbox" data-id="{{$item.Id}}" /></td>
+                                <td >{{$item.Id}}</td>
                                 <td >{{$item.Title}}</td>
                                 <td >{{$item.Command}}</td>
                                 <td >{{$item.CronExpr}}</td>
@@ -104,27 +117,8 @@
                     </table>
                 </div>
                 <div class="card-footer clearfix">
-                    从 <b>1</b> 到 <b>10</b> ，总共 <b>10</b> 条<ul class="pagination pagination-sm no-margin float-right">
-                        <!-- Previous Page Link -->
-                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-                        <!-- Pagination Elements -->
-                        <!-- "Three Dots" Separator -->
-                        <!-- Array Of Links -->
-                        <li class="page-item active"><span class="page-link">1</span></li>
-                        <!-- Next Page Link -->
-                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-                    </ul>
-                    <label class="control-label float-right" style="margin-right: 10px; font-weight: 100;">
-                        <small>显示</small>&nbsp;
-                        <select class="input-sm grid-per-pager" name="per-page">
-                            <option value="/auth/permissions?per_page=10" >10</option>
-                            <option value="/auth/permissions?per_page=20" selected>20</option>
-                            <option value="/auth/permissions?per_page=30" >30</option>
-                            <option value="/auth/permissions?per_page=50" >50</option>
-                            <option value="/auth/permissions?per_page=100" >100</option>
-                        </select>
-                        &nbsp;<small>条</small>
-                    </label>
+                    {{$page:=pagination .pages}}
+                    {{str2html $page}}
                 </div>
                 <!-- /.card-body -->
             </div>
@@ -162,6 +156,11 @@
 
         $('.grid-batch-0').on('click', function() {
             var id = selectedRows().join();
+            if (id == ""){
+                toastr.error('请选择操作节点 !');
+                return
+            }
+            console.log("id:",id)
             swal.fire({
                 title: "确认删除?",
                 icon: "warning",
@@ -178,7 +177,7 @@
                             data: {
                                 job_id:id,
                                 _method:'delete',
-                                _xsrf:'csrf_token'
+                                _xsrf:csrf_token,
                             },
                             success: function (data) {
                                 $.pjax.reload('#pjax-container');
@@ -187,13 +186,12 @@
                         });
                     });
                 }
-            }).then(function(result) {
-                var data = result.value;
-                if (typeof data === 'object') {
-                    if (data.status) {
-                        swal(data.message, '', 'success');
+            }).then(function(data) {
+                if (typeof data == 'object') {
+                    if (data.value.Code==200) {
+                        swal.fire({title:data.value.Message, icon:'success'});
                     } else {
-                        swal(data.message, '', 'error');
+                        swal.fire({title:data.value.Message, icon:'error'});
                     }
                 }
             });
@@ -226,18 +224,16 @@
                         });
                     });
                 }
-            }).then(function(result) {
-                var data = result.value;
-                if (typeof data === 'object') {
-                    if (data.status) {
-                        swal(data.message, '', 'success');
+            }).then(function(data) {
+                if (typeof data == 'object') {
+                    if (data.value.Code==200) {
+                        swal.fire({title:data.value.Message, icon:'success'});
                     } else {
-                        swal(data.message, '', 'error');
+                        swal.fire({title:data.value.Message, icon:'error'});
                     }
                 }
             });
         });
-
 
         $('.grid-refresh').on('click', function() {
             $.pjax.reload('#pjax-container');

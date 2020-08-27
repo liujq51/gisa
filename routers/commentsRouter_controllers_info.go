@@ -72,4 +72,13 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["gisa/controllers/info:RoleController"] = append(beego.GlobalControllerRouter["gisa/controllers/info:RoleController"],
+        beego.ControllerComments{
+            Method: "Index",
+            Router: "/info/menu",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
 }

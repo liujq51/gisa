@@ -29,84 +29,13 @@
                             </div>
                         </div>
                         <div class="form-group  row">
-                            <label for="parent_id" class="col-sm-2 col-form-label">Webhook</label>
-                            <div class="col-sm-8">
-                                <select class="form-control webhook" style="width: 100%;" name="webhook">
-                                    {{str2html .webhook_select_option}}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group  row">
-                            <label for="parent_id" class="col-sm-2 col-form-label">消息类型</label>
-                            <div class="col-sm-8">
-                                <select class="form-control msg_type" style="width: 100%;" name="msg_type" data-value="{{.model.MsgType}}" >
-                                    {{str2html .msg_type_select_option}}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group  row type_text">
-                            <label for="title" class="col-sm-2 col-form-label">消息内容</label>
+                            <label for="title" class="col-sm-2 col-form-label">Command</label>
                             <div class="col-sm-8">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fas fa-edit"></i></span>
                                     </div>
-                                    <textarea type="text" id="msg_content" name="msg_content" class="form-control title" placeholder="输入 消息内容"  >{{.model.MsgContent}}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group  row type_news">
-                            <label for="title" class="col-sm-2 col-form-label">消息标题</label>
-                            <div class="col-sm-8">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
-                                    </div>
-                                    <input type="text" name="msg_title" value="{{.model.MsgTitle}}" class="form-control title" placeholder="输入 消息标题"/>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group  row type_news">
-                            <label for="title" class="col-sm-2 col-form-label">消息描述</label>
-                            <div class="col-sm-8">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
-                                    </div>
-                                    <textarea type="text" name="msg_desc" value="{{.model.MsgDesc}}" class="form-control title" placeholder="输入 消息描述"  ></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group  row type_text">
-                            <label for="title" class="col-sm-2 col-form-label">提醒群成员列表</label>
-                            <div class="col-sm-8">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
-                                    </div>
-                                    <input type="text"  name="mentioned_list" value="{{.model.MentionedList}}" class="form-control title" placeholder="输入 消息标题" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group  row type_news">
-                            <label for="title" class="col-sm-2 col-form-label">跳转链接</label>
-                            <div class="col-sm-8">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
-                                    </div>
-                                    <input type="text" name="msg_url" value="{{.model.MsgUrl}}" class="form-control title" placeholder="输入 跳转链接"  />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group  row type_news">
-                            <label for="title" class="col-sm-2 col-form-label">图文消息的图片链接</label>
-                            <div class="col-sm-8">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-edit"></i></span>
-                                    </div>
-                                    <input type="text" id="msg_picurl" name="msg_picurl" value="{{.model.MsgPicurl}}" class="form-control title" placeholder="输入 图片链接" />
+                                    <input type="text" name="command" value="{{.model.Command}}" class="form-control title" placeholder="输入 Command"/>
                                 </div>
                             </div>
                         </div>
@@ -153,22 +82,6 @@
     </div>
 </section>
 <script>
-    function changeType(type_value){
-        if('text' == type_value || 'markdown' == type_value){
-            $(".type_text").show();
-            $(".type_news").hide();
-        }else if('news' == type_value){
-            $(".type_text").hide();
-            $(".type_news").show();
-        }
-    }
     $(function () {
-        $(".webhook").select2({"allowClear":true,"placeholder":{"id":"","text":"\u7236\u7ea7\u83dc\u5355"}});
-        $(".msg_type").select2({"allowClear":true,"placeholder":{"id":"","text":"\u7236\u7ea7\u83dc\u5355"}});
-        changeType({{.model.MsgType}});
-        $(document).on('change', ".msg_type", function () {
-            var type_value = $(this).find("option:selected").val();
-            changeType(type_value);
-        });
     });
 </script>

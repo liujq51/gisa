@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"gisa/common"
 
 	"github.com/astaxie/beego/orm"
 )
@@ -26,6 +27,50 @@ type Role struct {
 	Slug      string
 	CreatedAt string
 	UpdatedAt string
+}
+
+//list permissions
+func ListRoles(listParams JobListParams) ([]*Role, common.Pagination, error) {
+	var (
+		Roles []*Role
+		count int64
+	)
+	pagination := common.Pagination{}
+	if listParams.PageIndex == 0 {
+		pagination.PageIndex = 1
+	} else {
+		pagination.PageIndex = listParams.PageIndex
+	}
+	if listParams.PageCount == 0 {
+		pagination.PageCount = 10
+	} else {
+		pagination.PageCount = listParams.PageCount
+	}
+
+	pagination.Url = "/role"
+	fmt.Println("list params:", listParams, listParams.Id, listParams.Id > 0, listParams.Title, listParams.Title != "")
+	o := orm.NewOrm()
+	qs := o.QueryTable(RoleTBName())
+	if listParams.Id > 0 {
+		qs = qs.Filter("id", listParams.Id)
+	}
+	if listParams.Title != "" {
+		qs = qs.Filter("title__icontains", listParams.Title)
+	}
+	_, err := qs.Limit(pagination.PageCount).
+		Offset(pagination.PageCount * (pagination.PageIndex - 1)).
+		RelatedSel().
+		All(&Roles)
+
+	if err != nil {
+		return Roles, pagination, err
+	}
+
+	count, err = o.QueryTable(JobTBName()).Count()
+	pagination.PageTotal = int(count)
+	fmt.Printf("%+v", listParams)
+	fmt.Printf("%+v", pagination)
+	return Roles, pagination, err
 }
 
 // RoleBatchDelete 批量删除
